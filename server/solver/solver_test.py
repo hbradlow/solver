@@ -1,7 +1,14 @@
-from solver.solver import solve
+import unittest
 
-def test_solve():
-    if solve("1+5")!="0":
-        print "Fail"
-    else:
-        print "Succeed"
+from solver import Solver
+
+class TestSequenceFunctions(unittest.TestCase):
+
+    def setUp(self):
+        self.solver = Solver()
+
+    def test_add(self):
+        self.assertTrue(self.solver.solve("1+6") == 7)
+
+if __name__ == '__main__':
+    unittest.main()
