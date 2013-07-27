@@ -15,9 +15,11 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_simple(self):
         self.assertEquals(self.solver._simple("1+6"),"7")
+        self.assertEquals(self.solver._simple("1+2+3"), "6")
 
     def test_wolfram(self):
         self.assertEquals(self.solver._wolfram("3x+4=10"),"x = 2")
+
 
 if __name__ == '__main__':
     unittest.main()
