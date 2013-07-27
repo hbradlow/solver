@@ -2,17 +2,23 @@ from flask import Flask
 import flask
 from flask import *
 from flaskext.uploads import *
+import IPython
 app = Flask(__name__)
+
+from parser.parse import parse
+from solver.solver import Solver
 
 @app.route('/solve',methods=['GET','POST','PUT'])
 def upload():
-    print request.__dict__
-    if request.method == 'PUT' and 'photo' in request.files and False:
-        filename = photos.save(request.files['photo'])
-        rec = Photo(filename=filename, user=g.user.id)
-        rec.store()
-        flash("Photo saved.")
-        return "Worked!",filename
+    if request.method == 'POST' and 'photo' in request.files:
+        extension = request.files['photo'].filename.split(".")[-1]
+        path = "tmp/tmp."+extension
+        request.files['photo'].save(path)
+
+        s = parse(path)
+        solver = Solver()
+        return solver.solve(s)
+
     return "You uploaded a file!"
 
 @app.route("/")
