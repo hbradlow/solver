@@ -1,5 +1,6 @@
 import sympy
 import wolframalpha
+import IPython
 
 NUMBERS = "1234567890"
 OPERATIONS = "=-+*%/"
@@ -13,9 +14,9 @@ class Solver:
         res = self.wolfram_client.query(s)
         for r in res:
             title = r.node.attrib['title']
-            if title == "Solution" or title == "Result":
+            if title in ["Solution","Result","Derivative"]:
                 return r.node._children[0]._children[0].text
-        return get_answer(res)
+        return "Unknown problem type."
 
     def _simple(self,s):
         return str(sympy.sympify(s))

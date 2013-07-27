@@ -10,6 +10,8 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_random(self):
         self.assertEquals(self.solver.solve("6*3"),"18")
         self.assertEquals(self.solver.solve("x-4=10"),"x = 14")
+        self.assertEquals(self.solver.solve("d/dx x^2"),"d/dx(x^2) = 2 x")
+        self.assertEquals(self.solver.solve("derivative x^2"),"d/dx(x^2) = 2 x")
 
     def test_simple(self):
         self.assertEquals(self.solver._simple("1+6"),"7")
