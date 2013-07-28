@@ -22,9 +22,13 @@ class Solver:
         return str(sympy.sympify(s))
 
     def solve(self,s):
+        if len(s)<2:
+            return None
         for char in s:
             if char not in NUMBERS and char not in OPERATIONS:
                 return self._wolfram(s)
         if s[-1] in OPERATIONS:
             s = s[0:-1]
+        if len(s)<2:
+            return None
         return self._simple(s)

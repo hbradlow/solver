@@ -5,7 +5,10 @@ from skimage.morphology import label, closing, square, reconstruction, erosion, 
 import numpy as np
 
 def crop(f, bbs):
-    img = cv2.imread(f)[0::1,0::1]
+    print "SIZES"
+    for b in bbs:
+        print b.size_t()
+    img = cv2.imread(f)[1::5,1::5]
 
     """
     block_size = img.shape[0]/7.
@@ -23,10 +26,10 @@ def crop(f, bbs):
     """
 
     i = 0
-    buffer = 3
+    buffer = 5
     files = []
     for box in bbs:
-        cv2.imwrite("tmp"+str(i)+".png", ndimage.rotate(img[box.x1*5-buffer:box.x2*5+buffer, box.y1*5-buffer:box.y2*5+buffer],0))
+        cv2.imwrite("tmp"+str(i)+".png", ndimage.rotate(img[box.x1-buffer:box.x2+buffer, box.y1-buffer:box.y2+buffer],-90)[1:-1,1:-1])
         files.append("tmp"+str(i)+".png")
         i += 1
     return files
