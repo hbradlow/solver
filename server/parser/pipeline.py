@@ -4,15 +4,12 @@
 from json import dumps
 from subprocess import Popen
 import subprocess
-from lines import cluster
-from cc import get_bounding_boxes
-from cropper import crop
+from parser.lines import cluster,matrix_cluster
+from parser.cc import get_bounding_boxes
+from parser.cropper import crop
 
 class TesseractOperation:
-    def run(self, filename, psm='10', charset='arith', clean=False):
-        psm = "7"
-        charset = 'arith'
-
+    def run(self, filename, psm='7', charset='arith', clean=False):
         outfile = filename + '.txt'
         import os
         args = ('/usr/local/bin/tesseract', filename, filename, '-psm ' + psm, charset)
@@ -54,6 +51,7 @@ class Pipeline:
             arith_segs, mat_segs = arith_stage.handle(arith_segs), arith_stage.handle(mat_segs)
 
         result = {'arith': arith_segs, 'mat': mat_segs}
+        print "RESULT::::",result
         
         return result
 
@@ -64,7 +62,7 @@ class Pipeline:
         """
 
         raw_boxes = get_bounding_boxes(img)
-        clusters = cluster(raw_boxes)
+        clusters = matrix_cluster(raw_boxes)
         images = crop(img,[c.bounding_box() for c in clusters])
 
         result = {'arith': images, 'mat': []}
