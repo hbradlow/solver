@@ -17,7 +17,7 @@ def components(img):
                 if img[i,j] == 0 and seen[i,j] == 0:
                     #print "found unseen black pixel"
                     return (i,j)
-        return false
+        return False
     components = []
     pixel = find() #find a black pixel we haven't seen
     while ( pixel ): # while such a pixel exists
@@ -42,7 +42,6 @@ if __name__ == "__main__":
     im = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
     im = cv2.threshold(im, 150, 255, cv2.THRESH_BINARY)[1]
     
-    cv2.imshow('win', im)
    
     print len(components(im))
 
