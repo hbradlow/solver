@@ -4,7 +4,7 @@
 from json import dumps
 from subprocess import Popen
 import subprocess
-from parser.lines import cluster
+from parser.lines import cluster,matrix_cluster
 from parser.cc import get_bounding_boxes
 from parser.cropper import crop
 
@@ -54,6 +54,7 @@ class Pipeline:
             arith_segs, mat_segs = arith_stage.handle(arith_segs), arith_stage.handle(mat_segs)
 
         result = {'arith': arith_segs, 'mat': mat_segs}
+        print "RESULT::::",result
         
         return result
 

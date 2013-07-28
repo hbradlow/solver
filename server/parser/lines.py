@@ -103,7 +103,7 @@ def cluster_boxes(boxes,num_clusters=3):
 def matrix_cluster(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])
     normal = reject_outliers(sizes)[:,0]
-    return cluster(normal)
+    return cluster(list(normal))
 
 def cluster(boxes):
     clusters = []
@@ -123,6 +123,21 @@ def cluster(boxes):
 
         if len(cluster.boxes)<5 and cluster.bounding_box().size()>100:
             clusters.append(cluster)
+
+    root = tk.Tk()
+    vis = Visualizer(root,1000,600)
+
+    #return the clusters of boxes
+    for cluster in clusters:
+        for b in cluster.boxes:
+            box = Box2D((b.x1,b.y1),size=b.size_t())
+            vis.add_drawable(box)
+        box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
+                    size=cluster.bounding_box().size_t())
+        box.fill = None
+        vis.add_drawable(box)
+    vis.run()
+    root.mainloop()
 
     return sorted(clusters,key = lambda c:c.mid_y())
 

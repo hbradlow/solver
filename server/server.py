@@ -9,7 +9,7 @@ from parser.pipeline import  Pipeline
 from solver.solver import Solver
 
 @app.route('/matrix',methods=['GET','POST','PUT'])
-def upload():
+def matrix():
     if request.method == 'POST' and 'photo' in request.files:
         try:
             extension = request.files['photo'].filename.split(".")[-1]
