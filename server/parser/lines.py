@@ -75,7 +75,15 @@ def cluster(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])
     abnormal = accept_outliers(sizes)[:,0]
     normal = reject_outliers(sizes)[:,0]
-    return cluster_boxes(normal)
+
+    cluster = None
+    first = -1
+    for i in range(100):
+        clusters,error = cluster_boxes(normal,num_clusters=i+1)
+        if first!=-1 and error/(first-error)<.15:
+            break
+        first = error
+    return clusters
 
 if __name__=="__main__":
     dist = 200
@@ -131,14 +139,17 @@ if __name__=="__main__":
     abnormal = accept_outliers(sizes)[:,0]
     normal = reject_outliers(sizes)[:,0]
 
-    first = 99999999999999
+    first = -1
+    num = 0
     for i in range(100):
+        num = i+1
         print first
         clusters,error = cluster_boxes(normal,num_clusters=i+1)
         print clusters,error
-        if first-error<5:
+        if first!=-1 and error/(first-error)<.15:
             break
         first = error
+    print "NUMLUSTERS:",num
     colors *= len(clusters)/len(colors)
     root = tk.Tk()
     vis = Visualizer(root,1000,600)
