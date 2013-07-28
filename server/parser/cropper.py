@@ -26,10 +26,10 @@ def crop(f, bbs):
     """
 
     i = 0
-    buffer = 5
+    buffer = 0
     files = []
     for box in bbs:
-        cv2.imwrite("tmp"+str(i)+".png", ndimage.rotate(img[box.x1-buffer:box.x2+buffer, box.y1-buffer:box.y2+buffer],-90)[1:-1,1:-1])
+        cv2.imwrite("tmp"+str(i)+".png", ndimage.rotate(img[box.x1-buffer:box.x2+buffer, box.y1-buffer:box.y2+buffer],0)[1:-1,1:-1])
         files.append("tmp"+str(i)+".png")
         i += 1
     return files

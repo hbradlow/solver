@@ -9,6 +9,8 @@ class Cluster:
         if boxes:
             self.boxes = boxes
         self.error = 0
+    def mid_x(self):
+        return self.bounding_box().mid_x()
     def mid_y(self):
         return self.bounding_box().mid_y()
     def bounding_box(self):
@@ -56,6 +58,8 @@ class Box:
         return not (self.y1>other.y2 or self.y2<other.y1)
     def __eq__(self,other):
         return [self.x1,self.x2,self.y1,self.y2] == [other.x1,other.x2,other.y1,other.y2]
+    def x_size(self):
+        return abs(self.x2-self.x1)
     def y_size(self):
         return abs(self.y2-self.y1)
     def size_t(self):
@@ -101,9 +105,10 @@ def cluster_boxes(boxes,num_clusters=3):
     return clusters,means[1]
 
 def matrix_cluster(boxes):
-    sizes = np.array([[b,b.y_size()] for b in boxes])
+    sizes = np.array([[b,b.x_size()] for b in boxes])
     normal = reject_outliers(sizes)[:,0]
-    return cluster(list(normal))
+    clusters = cluster(list(normal))
+    return clusters
 
 def cluster(boxes):
     clusters = []
@@ -115,7 +120,7 @@ def cluster(boxes):
         tmp = []
         for other in boxes:
             print cluster
-            if cluster.bounding_box().overlaps_y(other):
+            if cluster.bounding_box().overlaps_x(other):
                 cluster.boxes.append(other)
             else:
                 tmp.append(other)
@@ -125,7 +130,6 @@ def cluster(boxes):
         #if len(cluster.boxes)<5 and cluster.bounding_box().size()>10:
         clusters.append(cluster)
 
-    """
     root = tk.Tk()
     vis = Visualizer(root,1000,600)
 
@@ -140,9 +144,8 @@ def cluster(boxes):
         vis.add_drawable(box)
     vis.run()
     root.mainloop()
-    """
 
-    return sorted(clusters,key = lambda c:c.mid_y())
+    return sorted(clusters,key = lambda c:c.mid_x())
 
 def cluster2(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])

@@ -63,6 +63,7 @@ class Pipeline:
 
         raw_boxes = get_bounding_boxes(img)
         clusters = matrix_cluster(raw_boxes)
+        print "SEGMENT CLUSTERS",clusters
         images = crop(img,[c.bounding_box() for c in clusters])
 
         result = {'arith': images, 'mat': []}

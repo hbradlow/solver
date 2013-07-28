@@ -10,11 +10,15 @@ class TestPipeline(unittest.TestCase):
         self.pipeline = Pipeline()
     
     def testSimple(self):
-        filename = 'tmp/tmp.jpg'
+        filename = 'tmp/tmp.png'
         out = self.pipeline.handle(filename)['arith']
         m = []
         for i in out:
             i = i.replace(" ","")
+            i = i.replace("-","")
+            i = i.replace("+","")
+            if not i.strip():
+                continue
             m.append([int(a) for a in list(i)])
         print m
         print "OUTPUT::::",out

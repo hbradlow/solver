@@ -25,11 +25,27 @@ def matrix():
             m = []
             for i in s:
                 i = i.replace(" ","")
+                i = i.replace("-","")
+                i = i.replace("+","")
+                if not i.strip():
+                    continue
                 m.append([int(a) for a in list(i)])
             print m
 
+            """
             ans = solver.solve("rref " + str(m))
-            return ans 
+            ans = ans.replace("(","")
+            ans = ans.replace(")","")
+            a = []
+            for thing in ans.split("\n"):
+                t = []
+                for b in thing.split("|"):
+                    t.append(int(b.strip()))
+                a.append(t)
+            """
+            a = solver.solve("det " + str(m))
+            obj = {'response':[{'problem':str(m),'steps':['something'],'solution':str(a)}]}
+            return flask.jsonify(obj)
         except Exception as e:
             print e
             IPython.embed()
