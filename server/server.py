@@ -5,7 +5,7 @@ from flaskext.uploads import *
 import IPython
 app = Flask(__name__)
 
-from parser.pipeline import  Pipeline
+from parser.pipeline import  *
 from solver.solver import Solver
 
 @app.route('/matrix',methods=['GET','POST','PUT'])
@@ -17,32 +17,22 @@ def matrix():
             request.files['photo'].save(path)
 
 
-            p = Pipeline()
-            s = p.handle(path)['arith']
-
+            s = handle_matrix(path)['arith']
             print s
             solver = Solver()
+            
             m = []
-            for i in s:
-                i = i.replace(" ","")
-                i = i.replace("-","")
-                i = i.replace("+","")
-                if not i.strip():
-                    continue
-                m.append([int(a) for a in list(i)])
-            print m
+            for i,row in enumerate(s):
+                l = []
+                for j,col in enumerate(row):
+                    new_s = col.replace(".","").replace("-","").strip()
+                    if not new_s:
+                        l.append(0)
+                    else:
+                        l.append(int(new_s))
+                m.append(l)
 
-            """
-            ans = solver.solve("rref " + str(m))
-            ans = ans.replace("(","")
-            ans = ans.replace(")","")
-            a = []
-            for thing in ans.split("\n"):
-                t = []
-                for b in thing.split("|"):
-                    t.append(int(b.strip()))
-                a.append(t)
-            """
+
             a = solver.solve("det " + str(m))
             obj = {'response':[{'problem':str(m),'steps':['something'],'solution':str(a)}]}
             return flask.jsonify(obj)
@@ -52,8 +42,8 @@ def matrix():
 
     return "You uploaded a file!"
 
-@app.route('/solve',methods=['GET','POST','PUT'])
-def upload():
+@app.route('/system',methods=['GET','POST','PUT'])
+def system():
     if request.method == 'POST' and 'photo' in request.files:
         try:
             extension = request.files['photo'].filename.split(".")[-1]
@@ -61,8 +51,28 @@ def upload():
             request.files['photo'].save(path)
 
 
-            p = Pipeline()
-            s = p.handle(path)['arith']
+            s = handle_simple(path)['arith']
+            solver = Solver()
+
+            a = solver.solve("solve " + ", ".join(s))
+            obj = {'response':[{'problem':str(m),'steps':['something'],'solution':str(a)}]}
+            return flask.jsonify(obj)
+        except Exception as e:
+            print e
+            IPython.embed()
+
+    return "You uploaded a file!"
+
+@app.route('/solve',methods=['GET','POST','PUT'])
+def solve():
+    if request.method == 'POST' and 'photo' in request.files:
+        try:
+            extension = request.files['photo'].filename.split(".")[-1]
+            path = "tmp/tmp."+extension
+            request.files['photo'].save(path)
+
+
+            s = handle_simple(path)['arith']
             solver = Solver()
 
             solutions = []

@@ -4,17 +4,13 @@ from skimage.filter import threshold_otsu, threshold_adaptive
 from skimage.morphology import label, closing, square, reconstruction, erosion, dilation, square
 import numpy as np
 
-def crop(f, bbs):
-    print "SIZES"
-    for b in bbs:
-        print b.size_t()
+def crop(f, bbs,index=0):
     img = cv2.imread(f)[0::1,0::1]
 
     """
     block_size = img.shape[0]/7.
     binary_adaptive = np.invert(threshold_adaptive(img, block_size, offset=20))
     img = binary_adaptive > binary_adaptive.mean()
-    print img.shape
     new = np.zeros(img.shape)
     for (x,y,z), value in np.ndenumerate(img):
         if value:
@@ -25,12 +21,12 @@ def crop(f, bbs):
     img = dilation(img[:,:,0],square(10))
     """
 
-    i = 0
-    buffer = 0
+    i = index
+    buffer = 5
     files = []
     for box in bbs:
         cv2.imwrite("tmp"+str(i)+".png", ndimage.rotate(img[box.x1-buffer:box.x2+buffer, box.y1-buffer:box.y2+buffer],0)[1:-1,1:-1])
         files.append("tmp"+str(i)+".png")
         i += 1
-    return files
+    return files,i
 

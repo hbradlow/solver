@@ -10,12 +10,11 @@ def get_bounding_boxes(filename):
     image = np.asarray(image)[0::1,0::1]
 
     block_size = image.shape[0]/7.
-    binary_adaptive = np.invert(threshold_adaptive(image, block_size, offset=30))
+    binary_adaptive = np.invert(threshold_adaptive(image, block_size, offset=70))
 
     mask = binary_adaptive > binary_adaptive.mean()
     label_im, n_labels = ndimage.label(binary_adaptive)#mask)
 
-    print n_labels
 
     extrema = {}
     for i in range(1, n_labels+1):
@@ -42,5 +41,4 @@ def get_bounding_boxes(filename):
     for label,coords in extrema.items():
         b = Box(coords[0][0], coords[0][1], coords[1][0], coords[1][1])
         boxes.append(b)
-    #display_boxes(boxes)
     return boxes
