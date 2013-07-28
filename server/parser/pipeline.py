@@ -2,19 +2,37 @@
 # Output: list of strings representing the equations
 
 from json import dumps
-import tesseract
+from subprocess import Popen
+
+class TesseractOperation:
+    def run(self, filename, psm='7', charset='math'):
+        outfile = filename + '.txt'
+        args = ('tesseract', filename, filename, '-psm ' + psm, charset)
+        print ' '.join(args)
+        proc = Popen(args)
+        retcode = proc.wait()
+        if retcode != 0:
+            return None
+        result = ''
+        with open(outfile, 'rb') as f:
+            result = f.read().strip()
+        args = ('rm', outfile)
+        proc= Popen(args)
+        return result
+
+
 class ArithmeticPipeline:
+    tesser = TesseractOperation()
+
     def handle(self, segs):
-        api = tesseract.TessBaseAPI()
-        api.Init(".","eng",tesseract.OEM_DEFAULT)
-        api.SetVariable("tessedit_char_whitelist", "0123456789abcdefghijklmnopqrstuvwxyz+-/*.")
-        api.SetPageSegMode(7)
-       
+          
         result = []
         for s in segs:
-            img_buf = open(s, 'rb').read()
-            result.append(tesseract.ProcessPagesBuffer(img_buf,len(img_buf),api).strip())
+            text = self.tesser.run(s, '7', 'arith')
+            result.append(text)
+
         return result
+
 
 class MatrixPipeline:
     def handel(self, segs):
