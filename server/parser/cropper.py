@@ -7,12 +7,8 @@ import Image
 def crop(f, bbs):
     print 'filename', f
     img = Image.open(f)
-    img_array = np.asarray(img)[0::1,0::1]
+    img_array = ndimage.rotate(np.asarray(img)[0::5,0::5], -90)
     
-    print "SIZES"
-    for b in bbs:
-        print b.size_t()
-
     """
     block_size = img.shape[0]/7.
     binary_adaptive = np.invert(threshold_adaptive(img, block_size, offset=20))
@@ -33,12 +29,13 @@ def crop(f, bbs):
     files = []
     for box in bbs:
         name = "tmp"+str(i)+".png"
-        print '+++++++++IMAGE_ARRAY', type(img_array)
-
-        #img = img[box.x1*5-buffer:box.x2*5+buffer, box.y1*5-buffer:box.y2*5+buffer]
-        coords = (box.x1*5-buffer, box.y1*5-buffer, box.x2*5+buffer, box.y2*5+buffer)
-        img_array = img_array[coords[0]:coords[2], coords[1]:coords[3]]
+        x_mx, y_mx = img_array.shape[:2]
+   
+        print img_array.shape
+        coords = (box.x1*5-buffer, box.y1*5-buffer, box.x2*5-buffer, box.y2*5-buffer)
+        print coords
         img = Image.fromarray(img_array)
+        img.crop(coords)
         img.save(name)
         files.append("tmp"+str(i)+".png")
         i += 1

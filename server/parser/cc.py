@@ -7,7 +7,7 @@ import Image
 
 def get_bounding_boxes(filename):
     image = Image.open(filename)
-    image = np.asarray(image)[0::5,0::5]
+    image = ndimage.rotate(np.asarray(image)[0::5,0::5], -90)
 
     block_size = image.shape[0]/7.
     binary_adaptive = np.invert(threshold_adaptive(image, block_size, offset=30))

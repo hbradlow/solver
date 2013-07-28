@@ -118,7 +118,7 @@ def cluster(boxes):
                 cluster.boxes.append(other)
             else:
                 tmp.append(other)
-            print cluster.bounding_box()
+            #print cluster.bounding_box()
         boxes = tmp
 
         if len(cluster.boxes)<5 and cluster.bounding_box().size()>100:

@@ -10,7 +10,7 @@ class TestPipeline(unittest.TestCase):
         self.pipeline = Pipeline()
     
     def testSimple(self):
-        filename = 'photo.png'
+        filename = '../tmp/tmp.png'
         print 'FILENAME:::::::', filename
         out = self.pipeline.handle(filename)['arith'][0]
         print "OUTPUT::::",out
