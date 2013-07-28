@@ -15,6 +15,24 @@ class Cluster:
         y1 = min([b.y1 for b in self.boxes])
         y2 = max([b.y2 for b in self.boxes])
         return Box(x1,y1,x2,y2)
+    def __eq__(self,other):
+        if len(self.boxes)!=len(other.boxes):
+            return False
+        for box in self.boxes:
+            if box not in other.boxes:
+                return False
+        return True
+
+def display_boxes(boxes):
+    root = tk.Tk()
+    vis = Visualizer(root,1000,600)
+
+    for b in boxes:
+        box = Box2D((b.x1,b.y1),size=b.size_t())
+        vis.add_drawable(box)
+
+    vis.run()
+    root.mainloop()
 
 class Box:
     def __init__(self,x1,y1,x2=None,y2=None):
@@ -28,6 +46,8 @@ class Box:
         self.x2 = x2
         self.y2 = y2
         self.color="red"
+    def __eq__(self,other):
+        return [self.x1,self.x2,self.y1,self.y2] == [other.x1,other.x2,other.y1,other.y2]
     def y_size(self):
         return abs(self.y2-self.y1)
     def size_t(self):
@@ -51,11 +71,13 @@ def classify(ys,means):
 
 def x_cluster(xs,num_clusters=3):
     return kmeans(xs,num_clusters)
+
 def y_cluster(ys,num_clusters=3):
     return kmeans(ys,num_clusters)
 
 def accept_outliers(data, m=2):
     return data[abs(data[:,1] - np.mean(data[:,1])) > m * np.std(data[:,1])]
+
 def reject_outliers(data, m=2):
     return data[abs(data[:,1] - np.mean(data[:,1])) < m * np.std(data[:,1])]
 
@@ -68,14 +90,16 @@ def cluster_boxes(boxes,num_clusters=3):
     for i,b in enumerate(boxes):
         clusters[classification[i]].boxes.append(b)
 
-    print "Mean:",means[1]
     return clusters,means[1]
 
 def cluster(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])
+    #remove boxes whos size is an outlier
     abnormal = accept_outliers(sizes)[:,0]
     normal = reject_outliers(sizes)[:,0]
+    normal = boxes
 
+    #scan over values of k and pick the best one
     cluster = None
     first = -1
     for i in range(100):
@@ -83,7 +107,12 @@ def cluster(boxes):
         if first!=-1 and error/(first-error)<.15:
             break
         first = error
+
+    #return the clusters of boxes
     return clusters
+
+def find_matricies(boxes):
+    pass
 
 if __name__=="__main__":
     dist = 200
@@ -143,13 +172,10 @@ if __name__=="__main__":
     num = 0
     for i in range(100):
         num = i+1
-        print first
         clusters,error = cluster_boxes(normal,num_clusters=i+1)
-        print clusters,error
         if first!=-1 and error/(first-error)<.15:
             break
         first = error
-    print "NUMLUSTERS:",num
     colors *= len(clusters)/len(colors)
     root = tk.Tk()
     vis = Visualizer(root,1000,600)

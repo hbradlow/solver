@@ -71,4 +71,3 @@ class Pipeline:
         images = croped_images(img,[c.bounding_box() for c in cluster_boxes])
         result = {'arith': images, 'mat': []}
         return result
-
