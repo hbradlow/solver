@@ -1,3 +1,6 @@
+*.swp
+*#
+venv
 *.py[cod]
 
 # C extensions
