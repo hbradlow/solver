@@ -20,9 +20,10 @@ class TesseractOperation:
             return ""
 
 def ocr(segs):
+    tesser = TesseractOperation()
     result = []
     for s in segs:
-        text = self.tesser.run(s, '7', 'arith')
+        text = tesser.run(s, '7', 'arith')
         result.append(text)
     return result
 
