@@ -5,19 +5,24 @@ from json import dumps
 from subprocess import Popen
 
 class TesseractOperation:
-    def run(self, filename, psm='7', charset='math'):
+    def run(self, filename, psm='7', charset='math', clean=False):
         outfile = filename + '.txt'
         args = ('tesseract', filename, filename, '-psm ' + psm, charset)
         print ' '.join(args)
         proc = Popen(args)
         retcode = proc.wait()
         if retcode != 0:
+            print 'tesseract had an error'
             return None
         result = ''
         with open(outfile, 'rb') as f:
             result = f.read().strip()
-        args = ('rm', outfile)
-        proc= Popen(args)
+        if clean:
+            args = ('rm', outfile)
+            proc= Popen(args)
+
+        print 'output file to', outfile
+        print 'result', result
         return result
 
 
