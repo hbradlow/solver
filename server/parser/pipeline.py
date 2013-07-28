@@ -20,6 +20,9 @@ class TesseractOperation:
         except:
             return ""
 
+        if clean:
+            os.system('rm ' + filename + ' ' + outfile)
+
 
 class MatrixPipeline:
     tesser = TesseractOperation()
