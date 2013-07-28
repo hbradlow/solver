@@ -11,17 +11,14 @@ class TestPipeline(unittest.TestCase):
     
     def testSimple(self):
         filename = 'tmp/tmp.jpg'
-        out = self.pipeline.handle(filename)['arith'][0]
+        out = self.pipeline.handle(filename)['arith']
+        m = []
+        for i in out:
+            i = i.replace(" ","")
+            m.append([int(a) for a in list(i)])
+        print m
         print "OUTPUT::::",out
         self.assertEquals(out, "1+2+3")
-        """
-        filename = 'images/1+2+3.png'
-        self.assertEquals(self.pipeline.handle(filename)['arith'][0], "1+2+3")
-
-        filename = 'images/5*2+7.png'
-        self.assertEquals(self.pipeline.handle(filename)['arith'][0], "5*2+7")
-        """
-
 
 if __name__ == '__main__':
     unittest.main()

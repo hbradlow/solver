@@ -8,7 +8,7 @@ def crop(f, bbs):
     print "SIZES"
     for b in bbs:
         print b.size_t()
-    img = cv2.imread(f)[1::5,1::5]
+    img = cv2.imread(f)[0::1,0::1]
 
     """
     block_size = img.shape[0]/7.

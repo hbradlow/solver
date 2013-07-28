@@ -19,22 +19,17 @@ def matrix():
 
             p = Pipeline()
             s = p.handle(path)['arith']
+
             print s
             solver = Solver()
-
-            solutions = []
-            problems = []
+            m = []
             for i in s:
-                sol = solver.solve(i)
-                if sol:
-                    problems.append(i)
-                    solutions.append(sol)
-        
-            print solutions
-            obj = {'response':[]}
-            for p,s in zip(problems,solutions):
-                obj['response'].append({'problem':p,'steps':['something'],'solution':s})
-            return flask.jsonify(obj)
+                i = i.replace(" ","")
+                m.append([int(a) for a in list(i)])
+            print m
+
+            ans = solver.solve("rref " + str(m))
+            return ans 
         except Exception as e:
             print e
             IPython.embed()

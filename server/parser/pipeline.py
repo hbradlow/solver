@@ -9,10 +9,7 @@ from parser.cc import get_bounding_boxes
 from parser.cropper import crop
 
 class TesseractOperation:
-    def run(self, filename, psm='10', charset='arith', clean=False):
-        psm = "7"
-        charset = 'arith'
-
+    def run(self, filename, psm='7', charset='arith', clean=False):
         outfile = filename + '.txt'
         import os
         args = ('/usr/local/bin/tesseract', filename, filename, '-psm ' + psm, charset)
@@ -65,7 +62,7 @@ class Pipeline:
         """
 
         raw_boxes = get_bounding_boxes(img)
-        clusters = cluster(raw_boxes)
+        clusters = matrix_cluster(raw_boxes)
         images = crop(img,[c.bounding_box() for c in clusters])
 
         result = {'arith': images, 'mat': []}

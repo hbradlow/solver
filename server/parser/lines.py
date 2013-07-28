@@ -86,7 +86,7 @@ def y_cluster(ys,num_clusters=3):
 def accept_outliers(data, m=2):
     return data[abs(data[:,1] - np.mean(data[:,1])) > m * np.std(data[:,1])]
 
-def reject_outliers(data, m=2):
+def reject_outliers(data, m=1):
     return data[abs(data[:,1] - np.mean(data[:,1])) < m * np.std(data[:,1])]
 
 def cluster_boxes(boxes,num_clusters=3):
@@ -114,6 +114,7 @@ def cluster(boxes):
 
         tmp = []
         for other in boxes:
+            print cluster
             if cluster.bounding_box().overlaps_y(other):
                 cluster.boxes.append(other)
             else:
@@ -121,9 +122,10 @@ def cluster(boxes):
             print cluster.bounding_box()
         boxes = tmp
 
-        if len(cluster.boxes)<5 and cluster.bounding_box().size()>100:
-            clusters.append(cluster)
+        #if len(cluster.boxes)<5 and cluster.bounding_box().size()>10:
+        clusters.append(cluster)
 
+    """
     root = tk.Tk()
     vis = Visualizer(root,1000,600)
 
@@ -138,6 +140,7 @@ def cluster(boxes):
         vis.add_drawable(box)
     vis.run()
     root.mainloop()
+    """
 
     return sorted(clusters,key = lambda c:c.mid_y())
 
