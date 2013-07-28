@@ -19,7 +19,10 @@ class Solver:
         return "Unknown problem type."
 
     def _simple(self,s):
-        return str(sympy.sympify(s))
+        try:
+            return str(sympy.sympify(s))
+        except:
+            return None
 
     def solve(self,s):
         if len(s)<2:

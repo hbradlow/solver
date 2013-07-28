@@ -100,33 +100,29 @@ def cluster_boxes(boxes,num_clusters=3):
 
     return clusters,means[1]
 
+def matrix_cluster(boxes):
+    sizes = np.array([[b,b.y_size()] for b in boxes])
+    normal = reject_outliers(sizes)[:,0]
+    return cluster(normal)
+
 def cluster(boxes):
     clusters = []
     while boxes:
         cluster = Cluster()
         b = boxes.pop()
         cluster.boxes.append(b)
+
+        tmp = []
         for other in boxes:
-            if b.overlaps_y(other):
+            if cluster.bounding_box().overlaps_y(other):
                 cluster.boxes.append(other)
-                boxes.remove(other)
+            else:
+                tmp.append(other)
+            print cluster.bounding_box()
+        boxes = tmp
+
         if len(cluster.boxes)<5 and cluster.bounding_box().size()>100:
             clusters.append(cluster)
-
-    """
-    root = tk.Tk()
-    vis = Visualizer(root,1000,600)
-    for cluster in clusters:
-        for b in cluster.boxes:
-            box = Box2D((b.x1,b.y1),size=b.size_t())
-            vis.add_drawable(box)
-        box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
-                    size=cluster.bounding_box().size_t())
-        box.fill = None
-        vis.add_drawable(box)
-    vis.run()
-    root.mainloop()
-    """
 
     return sorted(clusters,key = lambda c:c.mid_y())
 
@@ -205,26 +201,6 @@ if __name__=="__main__":
                 Box(150,352),
                 Box(250,348),
                 Box(350,343),
-
-                Box(dist+300+ 50,50),
-                Box(dist+300+ 150,52),
-                Box(dist+300+ 250,48),
-                Box(dist+300+ 350,43),
-
-                Box(dist+300+ 50,150),
-                Box(dist+300+ 150,152),
-                Box(dist+300+ 250,148),
-                Box(dist+300+ 350,143),
-
-                Box(dist+300+ 50,250),
-                Box(dist+300+ 150,252),
-                Box(dist+300+ 250,248),
-                Box(dist+300+ 350,243),
-
-                Box(dist+300+ 50,350),
-                Box(dist+300+ 150,352),
-                Box(dist+300+ 250,348),
-                Box(dist+300+ 350,343),
 
                 Box(400,5,420,400),
             ]
