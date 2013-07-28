@@ -9,6 +9,10 @@ def crop(f, bbs):
     img = Image.open(f)
     img_array = np.asarray(img)[0::1,0::1]
     
+    print "SIZES"
+    for b in bbs:
+        print b.size_t()
+
     """
     block_size = img.shape[0]/7.
     binary_adaptive = np.invert(threshold_adaptive(img, block_size, offset=20))
@@ -25,7 +29,7 @@ def crop(f, bbs):
     """
 
     i = 0
-    buffer = 3
+    buffer = 5
     files = []
     for box in bbs:
         name = "tmp"+str(i)+".png"

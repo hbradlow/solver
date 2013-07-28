@@ -9,6 +9,8 @@ class Cluster:
         if boxes:
             self.boxes = boxes
         self.error = 0
+    def mid_y(self):
+        return self.bounding_box().mid_y()
     def bounding_box(self):
         x1 = min([b.x1 for b in self.boxes])
         x2 = max([b.x2 for b in self.boxes])
@@ -22,6 +24,8 @@ class Cluster:
             if box not in other.boxes:
                 return False
         return True
+    def __repr__(self):
+        return "Cluster:" + str(len(self.boxes))+"," + str(self.bounding_box())+"\n"
 
 def display_boxes(boxes):
     root = tk.Tk()
@@ -46,6 +50,10 @@ class Box:
         self.x2 = x2
         self.y2 = y2
         self.color="red"
+    def overlaps_x(self,other):
+        return not (self.x1>other.x2 or self.x2<other.x1)
+    def overlaps_y(self,other):
+        return not (self.y1>other.y2 or self.y2<other.y1)
     def __eq__(self,other):
         return [self.x1,self.x2,self.y1,self.y2] == [other.x1,other.x2,other.y1,other.y2]
     def y_size(self):
@@ -61,7 +69,7 @@ class Box:
     def pos(self):
         return np.array([self.mid_x(),self.mid_y()])
     def __repr__(self):
-        return "Box[" + str(self.mid_x()) + ", " + str(self.mid_y()) + "]"
+        return "Box[" + str(self.mid_x()) + ", " + str(self.mid_y()) + ":" + str(self.size()) + "]"
 
 def classify(ys,means):
     out = []
@@ -82,7 +90,7 @@ def reject_outliers(data, m=2):
     return data[abs(data[:,1] - np.mean(data[:,1])) < m * np.std(data[:,1])]
 
 def cluster_boxes(boxes,num_clusters=3):
-    ys = np.array([np.array([b.mid_x()]) for b in boxes])
+    ys = np.array([np.array([b.mid_y()]) for b in boxes])
 
     means = y_cluster(ys,num_clusters)
     classification = classify(ys,means)
@@ -92,11 +100,41 @@ def cluster_boxes(boxes,num_clusters=3):
 
     return clusters,means[1]
 
+def matrix_cluster(boxes):
+    sizes = np.array([[b,b.y_size()] for b in boxes])
+    normal = reject_outliers(sizes)[:,0]
+    return cluster(normal)
+
 def cluster(boxes):
+    clusters = []
+    while boxes:
+        cluster = Cluster()
+        b = boxes.pop()
+        cluster.boxes.append(b)
+
+        tmp = []
+        for other in boxes:
+            if cluster.bounding_box().overlaps_y(other):
+                cluster.boxes.append(other)
+            else:
+                tmp.append(other)
+            print cluster.bounding_box()
+        boxes = tmp
+
+        if len(cluster.boxes)<5 and cluster.bounding_box().size()>100:
+            clusters.append(cluster)
+
+    return sorted(clusters,key = lambda c:c.mid_y())
+
+def cluster2(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])
     #remove boxes whos size is an outlier
     #abnormal = accept_outliers(sizes)[:,0]
     #normal = reject_outliers(sizes)[:,0]
+    normal = []
+    for b in boxes:
+        if b.size()>100:
+            normal.append(b)
     normal = boxes
     """
     clusters = []
@@ -112,12 +150,14 @@ def cluster(boxes):
     #scan over values of k and pick the best one
     cluster = None
     first = -1
+    """
     for i in range(100):
         clusters,error = cluster_boxes(normal,num_clusters=i+1)
-        if first!=-1 and error/(first-error)<.45:
+        if first!=-1 and error/(first-error)<.15:
             break
         first = error
-    #clusters,error = cluster_boxes(normal,num_clusters=11)
+    """
+    clusters,error = cluster_boxes(normal,num_clusters=6)
 
     #return the clusters of boxes
     for cluster in clusters:
@@ -127,9 +167,9 @@ def cluster(boxes):
         box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
                     size=cluster.bounding_box().size_t())
         box.fill = None
-        #vis.add_drawable(box)
-    #vis.run()
-    #root.mainloop()
+        vis.add_drawable(box)
+    vis.run()
+    root.mainloop()
 
     return clusters
 
@@ -161,26 +201,6 @@ if __name__=="__main__":
                 Box(150,352),
                 Box(250,348),
                 Box(350,343),
-
-                Box(dist+300+ 50,50),
-                Box(dist+300+ 150,52),
-                Box(dist+300+ 250,48),
-                Box(dist+300+ 350,43),
-
-                Box(dist+300+ 50,150),
-                Box(dist+300+ 150,152),
-                Box(dist+300+ 250,148),
-                Box(dist+300+ 350,143),
-
-                Box(dist+300+ 50,250),
-                Box(dist+300+ 150,252),
-                Box(dist+300+ 250,248),
-                Box(dist+300+ 350,243),
-
-                Box(dist+300+ 50,350),
-                Box(dist+300+ 150,352),
-                Box(dist+300+ 250,348),
-                Box(dist+300+ 350,343),
 
                 Box(400,5,420,400),
             ]

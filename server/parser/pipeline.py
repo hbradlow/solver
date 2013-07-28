@@ -32,7 +32,6 @@ class ArithmeticPipeline:
         for s in segs:
             text = self.tesser.run(s, '7', 'arith')
             result.append(text)
-        print 'arithmetic pipeline', result
 
         return result
 
