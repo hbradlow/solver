@@ -24,12 +24,19 @@ class ArithmeticPipeline:
     tesser = TesseractOperation()
 
     def handle(self, segs):
-          
-        result = []
-        for s in segs:
-            text = self.tesser.run(s, '7', 'arith')
-            result.append(text)
-
+        if type(segs[0]) is list:
+            result = []
+            for l in segs:
+                res = []
+                for s in segs:
+                    text = self.tesser.run(s, '10', 'arith')
+                    res.append(text)
+                result.append(res)
+        else:
+            result = []
+            for s in segs:
+                text = self.tesser.run(s, '7', 'arith')
+                result.append(text)
         return result
 
 
