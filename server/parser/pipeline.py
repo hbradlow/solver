@@ -22,9 +22,7 @@ class TesseractOperation:
 
 class ArithmeticPipeline:
     tesser = TesseractOperation()
-
     def handle(self, segs):
-          
         result = []
         for s in segs:
             text = self.tesser.run(s, '7', 'arith')
@@ -52,7 +50,6 @@ class Pipeline:
 
         result = {'arith': arith_segs, 'mat': mat_segs}
         print "RESULT::::",result
-        
         return result
 
 
@@ -60,7 +57,6 @@ class Pipeline:
         """
         img should be filename
         """
-
         raw_boxes = get_bounding_boxes(img)
         clusters = matrix_cluster(raw_boxes)
         images = crop(img,[c.bounding_box() for c in clusters])
