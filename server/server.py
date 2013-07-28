@@ -18,7 +18,7 @@ def matrix():
 
 
             p = Pipeline()
-            s = p.handle(path)['arith']
+            s = p.handle(path)['mat']
 
             print s
             solver = Solver()

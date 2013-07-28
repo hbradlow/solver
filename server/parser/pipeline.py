@@ -19,51 +19,37 @@ class TesseractOperation:
         except:
             return ""
 
-
-class ArithmeticPipeline:
-    tesser = TesseractOperation()
-
-    def handle(self, segs):
-          
-        result = []
-        for s in segs:
-            text = self.tesser.run(s, '7', 'arith')
-            result.append(text)
-
-        return result
-
-
-class MatrixPipeline:
-    def handel(self, segs):
-        return []
-
+def ocr(segs):
+    result = []
+    for s in segs:
+        text = self.tesser.run(s, '7', 'arith')
+        result.append(text)
+    return result
 
 class Pipeline:
-    pipeline_stages = {'arith': [ArithmeticPipeline()], 'mat': [None]}
 
-    def handle(self, img):
-        segs = self.segment(img)
+    def handle(self, img, kind='arith'):
+        segs = self.segment(img, kind)
         arith_segs = segs.get('arith')
         mat_segs = segs.get('mat')
         #print "SEGS",segs
 
-        for arith_stage, mat_stage in zip(Pipeline.pipeline_stages['arith'], Pipeline.pipeline_stages['mat']):
-            arith_segs, mat_segs = arith_stage.handle(arith_segs), arith_stage.handle(mat_segs)
+        arith_segs, mat_segs = ocr(arith_segs), ocr(mat_segs)
 
         result = {'arith': arith_segs, 'mat': mat_segs}
         print "RESULT::::",result
-        
-        return result
+        return result[kind]
 
 
-    def segment(self, img):
+    def segment(self, img): 
         """
         img should be filename
         """
-
         raw_boxes = get_bounding_boxes(img)
-        clusters = matrix_cluster(raw_boxes)
+        matrix_clusters = matrix_cluster(raw_boxes)
+        clusters = cluster(raw_boxes)
+        matrix_images = crop(img,[c.bounding_box() for c in matrix_clusters])
         images = crop(img,[c.bounding_box() for c in clusters])
 
-        result = {'arith': images, 'mat': []}
+        result = {'arith': [images], 'mat': [matrix_images]}
         return result
