@@ -107,7 +107,7 @@ def cluster(boxes):
 
 
     root = tk.Tk()
-    vis = Visualizer(root,1000,600)
+    #vis = Visualizer(root,1000,600)
 
     #scan over values of k and pick the best one
     cluster = None
@@ -123,11 +123,11 @@ def cluster(boxes):
     for cluster in clusters:
         for b in cluster.boxes:
             box = Box2D((b.x1,b.y1),size=b.size_t())
-            vis.add_drawable(box)
+            #vis.add_drawable(box)
         box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
                     size=cluster.bounding_box().size_t())
         box.fill = None
-        vis.add_drawable(box)
+        #vis.add_drawable(box)
     #vis.run()
     #root.mainloop()
 
@@ -200,18 +200,18 @@ if __name__=="__main__":
         first = error
     colors *= len(clusters)/len(colors)
     root = tk.Tk()
-    vis = Visualizer(root,1000,600)
+    #vis = Visualizer(root,1000,600)
 
     for cluster,color in zip(clusters,colors):
         for b in cluster.boxes:
             box = Box2D((b.x1,b.y1),size=b.size_t())
             box.fill = color
-            vis.add_drawable(box)
+            #vis.add_drawable(box)
         box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
                     size=cluster.bounding_box().size_t())
         box.fill = None
-        vis.add_drawable(box)
+        #vis.add_drawable(box)
 
 
-    vis.run()
+    #vis.run()
     root.mainloop()

@@ -4,9 +4,9 @@
 from json import dumps
 from subprocess import Popen
 import subprocess
-from parser.lines import cluster
-from parser.cc import get_bounding_boxes
-from parser.cropper import crop
+from lines import cluster
+from cc import get_bounding_boxes
+from cropper import crop
 
 class TesseractOperation:
     def run(self, filename, psm='10', charset='arith', clean=False):
@@ -32,7 +32,7 @@ class ArithmeticPipeline:
         for s in segs:
             text = self.tesser.run(s, '7', 'arith')
             result.append(text)
-        print result
+        print 'arithmetic pipeline', result
 
         return result
 

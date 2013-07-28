@@ -54,7 +54,7 @@ def segment(filename):
 
     num = windows.shape[0]
     index = 0
-    print num/skip
+    print 'num/skip', num/skip
     for i,row in enumerate(windows[0::skip]):
         print "ROW",index
         index += 1

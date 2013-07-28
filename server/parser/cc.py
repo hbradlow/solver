@@ -1,7 +1,7 @@
 from scipy import ndimage
 import numpy as np
 import mahotas
-from parser.lines import *
+from lines import *
 from skimage.filter import threshold_otsu, threshold_adaptive
 import Image
 
@@ -15,7 +15,7 @@ def get_bounding_boxes(filename):
     mask = binary_adaptive > binary_adaptive.mean()
     label_im, n_labels = ndimage.label(binary_adaptive)#mask)
 
-    print n_labels
+    print n_labels, 'labels'
 
     extrema = {}
     for i in range(1, n_labels+1):

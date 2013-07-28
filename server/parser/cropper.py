@@ -1,12 +1,14 @@
-import cv2
 from scipy import ndimage
 from skimage.filter import threshold_otsu, threshold_adaptive
 from skimage.morphology import label, closing, square, reconstruction, erosion, dilation, square
 import numpy as np
+import Image
 
 def crop(f, bbs):
-    img = cv2.imread(f)[0::1,0::1]
-
+    print 'filename', f
+    img = Image.open(f)
+    img_array = np.asarray(img)[0::1,0::1]
+    
     """
     block_size = img.shape[0]/7.
     binary_adaptive = np.invert(threshold_adaptive(img, block_size, offset=20))
@@ -26,7 +28,14 @@ def crop(f, bbs):
     buffer = 3
     files = []
     for box in bbs:
-        cv2.imwrite("tmp"+str(i)+".png", ndimage.rotate(img[box.x1*5-buffer:box.x2*5+buffer, box.y1*5-buffer:box.y2*5+buffer],0))
+        name = "tmp"+str(i)+".png"
+        print '+++++++++IMAGE_ARRAY', type(img_array)
+
+        #img = img[box.x1*5-buffer:box.x2*5+buffer, box.y1*5-buffer:box.y2*5+buffer]
+        coords = (box.x1*5-buffer, box.y1*5-buffer, box.x2*5+buffer, box.y2*5+buffer)
+        img_array = img_array[coords[0]:coords[2], coords[1]:coords[3]]
+        img = Image.fromarray(img_array)
+        img.save(name)
         files.append("tmp"+str(i)+".png")
         i += 1
     return files
