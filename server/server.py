@@ -18,9 +18,11 @@ def upload():
 
         p = Pipeline()
         s = p.handle(path)['arith'][0]
+        print s
         solver = Solver()
         solution = solver.solve(s)
-
+        
+        print solution
         return flask.jsonify({'response':[{'problem':s,'steps':['something'],'solution':solution}]})
 
     return "You uploaded a file!"
@@ -30,4 +32,4 @@ def hello():
         return "Solver!"
 
 if __name__ == "__main__":
-    app.run(host='172.16.240.220')
+    app.run(host='172.16.240.123')
