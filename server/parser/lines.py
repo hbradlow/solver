@@ -8,6 +8,7 @@ class Cluster:
         self.boxes = []
         if boxes:
             self.boxes = boxes
+        self.error = 0
     def bounding_box(self):
         x1 = min([b.x1 for b in self.boxes])
         x2 = max([b.x2 for b in self.boxes])
@@ -44,7 +45,6 @@ class Box:
 
 def classify(ys,means):
     out = []
-    print means[0].shape[0]
     for y in ys:
         out.append(min(range(means[0].shape[0]),key=lambda i: np.linalg.norm(means[0][i]-y)))
     return out
@@ -68,7 +68,8 @@ def cluster_boxes(boxes,num_clusters=3):
     for i,b in enumerate(boxes):
         clusters[classification[i]].boxes.append(b)
 
-    return clusters
+    print "Mean:",means[1]
+    return clusters,means[1]
 
 def cluster(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])
@@ -130,7 +131,14 @@ if __name__=="__main__":
     abnormal = accept_outliers(sizes)[:,0]
     normal = reject_outliers(sizes)[:,0]
 
-    clusters = cluster_boxes(normal,num_clusters=4)
+    first = 99999999999999
+    for i in range(100):
+        print first
+        clusters,error = cluster_boxes(normal,num_clusters=i+1)
+        print clusters,error
+        if first-error<5:
+            break
+        first = error
     colors *= len(clusters)/len(colors)
     root = tk.Tk()
     vis = Visualizer(root,1000,600)
