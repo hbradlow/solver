@@ -62,6 +62,4 @@ if __name__ == "__main__":
         (p2, p1) = bounding_box(c)
         cv2.rectangle(im, p1, p2, 0)
     cv2.imshow('win', im)
-   
-
     cv2.waitKey()

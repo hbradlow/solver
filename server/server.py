@@ -5,7 +5,7 @@ from flaskext.uploads import *
 import IPython
 app = Flask(__name__)
 
-from parser.parse import parse
+from parser.pipeline import  Pipeline
 from solver.solver import Solver
 
 @app.route('/solve',methods=['GET','POST','PUT'])
@@ -15,9 +15,15 @@ def upload():
         path = "tmp/tmp."+extension
         request.files['photo'].save(path)
 
-        s = parse(path)
+
+        p = Pipeline()
+        s = p.handle(path)['arith'][0]
+        print s
         solver = Solver()
-        return solver.solve(s)
+        solution = solver.solve(s)
+        
+        print solution
+        return flask.jsonify({'response':[{'problem':s,'steps':['something'],'solution':solution}]})
 
     return "You uploaded a file!"
 
@@ -26,4 +32,4 @@ def hello():
         return "Solver!"
 
 if __name__ == "__main__":
-        app.run()
+    app.run(host='172.16.240.123')
