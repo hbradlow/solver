@@ -25,7 +25,7 @@ class Box2D:
     def __repr__(self):
         return "<Box2D: " + str(self.origin) + " -> " + str(self.size) + ">"
     def draw(self,canvas):
-        factor = 1
+        factor = .6
         canvas.create_rectangle(self.origin[0]*factor,self.origin[1]*factor,
 			(self.origin[0]+self.size[0])*factor,(self.origin[1]+self.size[1])*factor,fill=self.fill,outline=self.outline)
 

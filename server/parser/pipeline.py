@@ -15,13 +15,18 @@ class TesseractOperation:
         import os
         args = ('/usr/local/bin/tesseract', filename, filename, '-psm ' + psm, charset)
         os.system(" ".join(args))
-        try:
-            return open(outfile).read().strip()
-        except:
-            return ""
 
+        s = ""
+        try:
+            s = open(outfile).read().strip()
+        except:
+            pass
+        
         if clean:
             os.system('rm ' + filename + ' ' + outfile)
+
+        return s
+
 
 
 class MatrixPipeline:

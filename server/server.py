@@ -8,6 +8,15 @@ app = Flask(__name__)
 from parser.pipeline import  *
 from solver.solver import Solver
 
+@app.route('/custom',methods=['GET','POST','PUT'])
+def custom():
+    if request.method == 'POST' and 'query' in request.post:
+        q = request.post['query']
+        a = solver._wolfram(q)
+        obj = {'response':[{'problem':query,'steps':['something'],'solution':str(a)}]}
+        return flask.jsonify(obj)
+
+
 @app.route('/matrix',methods=['GET','POST','PUT'])
 def matrix():
     if request.method == 'POST' and 'photo' in request.files:
@@ -18,7 +27,6 @@ def matrix():
 
 
             s = handle_matrix(path)['arith']
-            print s
             solver = Solver()
             
             m = []
@@ -27,14 +35,20 @@ def matrix():
                 for j,col in enumerate(row):
                     new_s = col.replace(".","").replace("-","").strip()
                     if not new_s:
-                        l.append(0)
+                        pass
                     else:
-                        l.append(int(new_s))
-                m.append(l)
+                        try:
+                            l.append(int(new_s))
+                        except:
+                            pass
+                if l:
+                    m.append(l)
+
+            print m
 
 
-            a = solver.solve("det " + str(m))
-            obj = {'response':[{'problem':str(m),'steps':['something'],'solution':str(a)}]}
+            a = solver._wolfram("det " + str(m))
+            obj = {'response':[{'problem':"Det("+str(m)+")",'steps':['something'],'solution':str(a)}]}
             return flask.jsonify(obj)
         except Exception as e:
             print e
@@ -52,10 +66,15 @@ def system():
 
 
             s = handle_simple(path)['arith']
+            m = []
+            for i in s:
+                new_i = i.replace(".","").replace("-","").strip()
+                if new_i:
+                    m.append(new_i)
             solver = Solver()
 
-            a = solver.solve("solve " + ", ".join(s))
-            obj = {'response':[{'problem':str(m),'steps':['something'],'solution':str(a)}]}
+            a = solver._wolfram("solve " + ", ".join(m))
+            obj = {'response':[{'problem':"solve " + ", ".join(m),'steps':['something'],'solution':str(a)}]}
             return flask.jsonify(obj)
         except Exception as e:
             print e
@@ -86,7 +105,8 @@ def solve():
             print solutions
             obj = {'response':[]}
             for p,s in zip(problems,solutions):
-                obj['response'].append({'problem':p,'steps':['something'],'solution':s})
+                if s:
+                    obj['response'].append({'problem':p,'steps':['something'],'solution':s})
             return flask.jsonify(obj)
         except Exception as e:
             print e
