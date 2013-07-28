@@ -8,13 +8,21 @@ app = Flask(__name__)
 from parser.pipeline import  *
 from solver.solver import Solver
 
+solver = Solver()
+
 @app.route('/custom',methods=['GET','POST','PUT'])
 def custom():
-    if request.method == 'POST' and 'query' in request.post:
-        q = request.post['query']
-        a = solver._wolfram(q)
-        obj = {'response':[{'problem':query,'steps':['something'],'solution':str(a)}]}
-        return flask.jsonify(obj)
+    try:
+        if request.method == 'POST' and 'query' in request.values:
+            q = request.values['query']
+            a = solver._wolfram(q)
+            obj = {'response':[{'problem':q,'steps':['something'],'solution':str(a)}]}
+            print obj
+            return flask.jsonify(obj)
+    except Exception as e:
+        IPython.embed()
+        print "Fail"
+        return "Invalid query"
 
 
 @app.route('/matrix',methods=['GET','POST','PUT'])
@@ -27,7 +35,6 @@ def matrix():
 
 
             s = handle_matrix(path)['arith']
-            solver = Solver()
             
             m = []
             for i,row in enumerate(s):
@@ -71,7 +78,6 @@ def system():
                 new_i = i.replace(".","").replace("-","").strip()
                 if new_i:
                     m.append(new_i)
-            solver = Solver()
 
             a = solver._wolfram("solve " + ", ".join(m))
             obj = {'response':[{'problem':"solve " + ", ".join(m),'steps':['something'],'solution':str(a)}]}
@@ -84,6 +90,7 @@ def system():
 
 @app.route('/solve',methods=['GET','POST','PUT'])
 def solve():
+    print "In solve"
     if request.method == 'POST' and 'photo' in request.files:
         try:
             extension = request.files['photo'].filename.split(".")[-1]
@@ -92,7 +99,6 @@ def solve():
 
 
             s = handle_simple(path)['arith']
-            solver = Solver()
 
             solutions = []
             problems = []

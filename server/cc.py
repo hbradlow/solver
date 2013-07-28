@@ -45,7 +45,6 @@ for label,coords in extrema.items():
     b = Box(coords[0][0], coords[0][1], coords[1][0], coords[1][1])
     boxes.append(b)
 print boxes
-display_boxes(boxes)
 
 
 plt.subplot(131)

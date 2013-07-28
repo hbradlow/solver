@@ -9,7 +9,7 @@ def crop(f, bbs,index=0):
 
     """
     block_size = img.shape[0]/7.
-    binary_adaptive = np.invert(threshold_adaptive(img, block_size, offset=20))
+    binary_adaptive = np.invert(threshold_adaptive(img, block_size, offset=70))
     img = binary_adaptive > binary_adaptive.mean()
     new = np.zeros(img.shape)
     for (x,y,z), value in np.ndenumerate(img):
@@ -18,7 +18,7 @@ def crop(f, bbs,index=0):
         else:
             new[x,y,:] = 1
     img = new
-    img = dilation(img[:,:,0],square(10))
+    #img = dilation(img[:,:,0],square(10))
     """
 
     i = index

@@ -133,8 +133,8 @@ def matrix_cluster(boxes):
             box.fill = None
             box.outline = "green"
             vis.add_drawable(box)
-    vis.run()
-    root.mainloop()
+    #vis.run()
+    #root.mainloop()
 
     return numbers
 
