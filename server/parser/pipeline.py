@@ -29,7 +29,7 @@ def ocr(segs):
 class Pipeline:
 
     def handle(self, img, kind='arith'):
-        segs = self.segment(img, kind)
+        segs = self.segment(img)
         arith_segs = segs.get('arith')
         mat_segs = segs.get('mat')
         #print "SEGS",segs
