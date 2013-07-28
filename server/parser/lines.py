@@ -82,7 +82,7 @@ def reject_outliers(data, m=2):
     return data[abs(data[:,1] - np.mean(data[:,1])) < m * np.std(data[:,1])]
 
 def cluster_boxes(boxes,num_clusters=3):
-    ys = np.array([np.array([b.mid_y()]) for b in boxes])
+    ys = np.array([np.array([b.mid_x()]) for b in boxes])
 
     means = y_cluster(ys,num_clusters)
     classification = classify(ys,means)
@@ -98,12 +98,18 @@ def cluster(boxes):
     #abnormal = accept_outliers(sizes)[:,0]
     #normal = reject_outliers(sizes)[:,0]
     normal = boxes
+    """
+    clusters = []
+    for box in boxes:
+        clusters.append(Cluster([box]))
+    return clusters
+    """
+
 
     root = tk.Tk()
     vis = Visualizer(root,1000,600)
 
     #scan over values of k and pick the best one
-    """
     cluster = None
     first = -1
     for i in range(100):
@@ -111,8 +117,7 @@ def cluster(boxes):
         if first!=-1 and error/(first-error)<.45:
             break
         first = error
-    """
-    clusters,error = cluster_boxes(normal,num_clusters=11)
+    #clusters,error = cluster_boxes(normal,num_clusters=11)
 
     #return the clusters of boxes
     for cluster in clusters:

@@ -8,9 +8,8 @@ import Image
 def get_bounding_boxes(filename):
     image = Image.open(filename)
     image = np.asarray(image)[0::5,0::5]
-    print image.shape
 
-    block_size = image.shape[0]/5.
+    block_size = image.shape[0]/7.
     binary_adaptive = np.invert(threshold_adaptive(image, block_size, offset=30))
 
     mask = binary_adaptive > binary_adaptive.mean()
@@ -38,7 +37,6 @@ def get_bounding_boxes(filename):
                 if j < top[1]:
                     top = (top[0], j)
                 extrema[label[0]] = (top, bottom)
-    print extrema
 
     boxes = []
     for label,coords in extrema.items():

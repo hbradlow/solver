@@ -15,7 +15,7 @@ def upload():
         path = "tmp/tmp."+extension
         request.files['photo'].save(path)
 
-        return flask.jsonify({'response':[{'problem':"3x+4=10",'steps':['something'],'solution':"x = 2"}]})
+        #return flask.jsonify({'response':[{'problem':"3x+4=10",'steps':['something'],'solution':"x = 2"}]})
 
         p = Pipeline()
         s = p.handle(path)['arith'][0]

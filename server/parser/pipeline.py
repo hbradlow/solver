@@ -3,33 +3,24 @@
 
 from json import dumps
 from subprocess import Popen
+import subprocess
 from parser.lines import cluster
 from parser.cc import get_bounding_boxes
 from parser.cropper import crop
 
 class TesseractOperation:
-    def run(self, filename, psm='7', charset='arith', clean=False):
+    def run(self, filename, psm='10', charset='arith', clean=False):
         psm = "7"
         charset = 'arith'
 
         outfile = filename + '.txt'
-        args = ('tesseract', filename, filename, '-psm ' + psm, charset)
-        #print ' '.join(args)
-        proc = Popen(args)
-        retcode = proc.wait()
-        if retcode != 0:
-            #print 'tesseract had an error'
-            return None
-        result = ''
-        with open(outfile, 'rb') as f:
-            result = f.read().strip()
-        if clean:
-            args = ('rm', outfile)
-            proc= Popen(args)
-
-        #print 'output file to', outfile
-        #print 'result', result
-        return result
+        import os
+        args = ('/usr/local/bin/tesseract', filename, filename, '-psm ' + psm, charset)
+        os.system(" ".join(args))
+        try:
+            return open(outfile).read().strip()
+        except:
+            return ""
 
 
 class ArithmeticPipeline:
@@ -41,6 +32,7 @@ class ArithmeticPipeline:
         for s in segs:
             text = self.tesser.run(s, '7', 'arith')
             result.append(text)
+        print result
 
         return result
 
