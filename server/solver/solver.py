@@ -25,4 +25,6 @@ class Solver:
         for char in s:
             if char not in NUMBERS and char not in OPERATIONS:
                 return self._wolfram(s)
+        if s[-1] in OPERATIONS:
+            s = s[0:-1]
         return self._simple(s)

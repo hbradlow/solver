@@ -70,10 +70,10 @@ def classify(ys,means):
     return out
 
 def x_cluster(xs,num_clusters=3):
-    return kmeans(xs,num_clusters)
+    return kmeans(xs,num_clusters,iter=200)
 
 def y_cluster(ys,num_clusters=3):
-    return kmeans(ys,num_clusters)
+    return kmeans(ys,num_clusters,iter=200)
 
 def accept_outliers(data, m=2):
     return data[abs(data[:,1] - np.mean(data[:,1])) > m * np.std(data[:,1])]
@@ -95,20 +95,37 @@ def cluster_boxes(boxes,num_clusters=3):
 def cluster(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])
     #remove boxes whos size is an outlier
-    abnormal = accept_outliers(sizes)[:,0]
-    normal = reject_outliers(sizes)[:,0]
+    #abnormal = accept_outliers(sizes)[:,0]
+    #normal = reject_outliers(sizes)[:,0]
     normal = boxes
 
+    root = tk.Tk()
+    vis = Visualizer(root,1000,600)
+
     #scan over values of k and pick the best one
+    """
     cluster = None
     first = -1
     for i in range(100):
         clusters,error = cluster_boxes(normal,num_clusters=i+1)
-        if first!=-1 and error/(first-error)<.15:
+        if first!=-1 and error/(first-error)<.45:
             break
         first = error
+    """
+    clusters,error = cluster_boxes(normal,num_clusters=11)
 
     #return the clusters of boxes
+    for cluster in clusters:
+        for b in cluster.boxes:
+            box = Box2D((b.x1,b.y1),size=b.size_t())
+            vis.add_drawable(box)
+        box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
+                    size=cluster.bounding_box().size_t())
+        box.fill = None
+        vis.add_drawable(box)
+    #vis.run()
+    #root.mainloop()
+
     return clusters
 
 def find_matricies(boxes):
