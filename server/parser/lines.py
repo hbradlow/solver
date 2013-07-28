@@ -62,13 +62,19 @@ def reject_outliers(data, m=2):
 def cluster_boxes(boxes,num_clusters=3):
     ys = np.array([np.array([b.mid_y()]) for b in boxes])
 
-    means = y_cluster(ys,4)
+    means = y_cluster(ys,num_clusters)
     classification = classify(ys,means)
     clusters = [Cluster() for i in range(means[0].shape[0])]
     for i,b in enumerate(boxes):
         clusters[classification[i]].boxes.append(b)
 
     return clusters
+
+def cluster(boxes):
+    sizes = np.array([[b,b.y_size()] for b in boxes])
+    abnormal = accept_outliers(sizes)[:,0]
+    normal = reject_outliers(sizes)[:,0]
+    return cluster_boxes(normal)
 
 if __name__=="__main__":
     dist = 200
