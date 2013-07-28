@@ -75,7 +75,7 @@ def system():
             s = handle_simple(path)['arith']
             m = []
             for i in s:
-                new_i = i.replace(".","").replace("-","").strip()
+                new_i = i.replace(".","").strip()
                 if new_i:
                     m.append(new_i)
 
