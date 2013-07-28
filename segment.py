@@ -15,7 +15,7 @@ def components(img):
             for j in range(img.shape[1]):
                 # if we haven't seen it and its black
                 if img[i,j] == 0 and seen[i,j] == 0:
-                    print "found unseen black pixel"
+                    #print "found unseen black pixel"
                     return (i,j)
         return false
     components = []
@@ -25,12 +25,12 @@ def components(img):
         stack = [pixel] # stack of pixels to process
         while ( stack ):
             (px, py) = stack.pop() # get a pix
-            print "processing pixel: " + str((px, py))
+            #print "processing pixel: " + str((px, py))
             cc.append((px,py)) # add to connected comp
             seen[px,py] = 1 # mark it as seen
             for (nx, ny) in neighbors(px, py): # add its neighbors to the stack
                 stack.append((nx,ny))
-        print "collected a component"
+        #print "collected a component"
         components.append(cc)
         pixel = find()
     return components
