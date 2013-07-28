@@ -3,6 +3,7 @@
 
 from json import dumps
 from subprocess import Popen
+from parser.lines import cluster
 
 class TesseractOperation:
     def run(self, filename, psm='7', charset='math', clean=False):
@@ -62,11 +63,12 @@ class Pipeline:
 
     def segment(self, img):
         """
-        Return a dictionary of opencv images
         img should be filename
         """
 
-        # hardcoded for now
-        result = {'arith': [img], 'mat': []}
+        raw_boxes = get_bounding_boxes(img)
+        clusters = cluster(raw_boxes)
+        images = croped_images(img,[c.bounding_box() for c in cluster_boxes])
+        result = {'arith': images, 'mat': []}
         return result
 

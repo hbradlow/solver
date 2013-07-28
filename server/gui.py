@@ -18,13 +18,14 @@ class Point2D:
 
 class Box2D:
     def __init__(self,origin,size):
-	self.origin = origin
-	self.size = size
+        self.origin = origin
+        self.size = size
+        self.fill = 'red'
     def __repr__(self):
         return "<Box2D: " + str(self.origin) + " -> " + str(self.size) + ">"
     def draw(self,canvas):
         canvas.create_rectangle(self.origin[0],self.origin[1],
-			self.origin[0]+self.size[0],self.origin[1]+self.size[1])
+			self.origin[0]+self.size[0],self.origin[1]+self.size[1],fill=self.fill)
 
 class Line2D:
     def __init__(self,start,end):

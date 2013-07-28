@@ -3,60 +3,156 @@ from scipy.cluster.vq import kmeans
 import numpy as np
 from gui import Visualizer, Point2D, Line2D, Box2D, add_line
 
+class Cluster:
+    def __init__(self,boxes=None):
+        self.boxes = []
+        if boxes:
+            self.boxes = boxes
+        self.error = 0
+    def bounding_box(self):
+        x1 = min([b.x1 for b in self.boxes])
+        x2 = max([b.x2 for b in self.boxes])
+        y1 = min([b.y1 for b in self.boxes])
+        y2 = max([b.y2 for b in self.boxes])
+        return Box(x1,y1,x2,y2)
+
 class Box:
-    def __init__(self,x,y):
-        self.x = x
-        self.y = y
+    def __init__(self,x1,y1,x2=None,y2=None):
+        if not x2:
+            x2 = x1+20
+        if not y2:
+            y2 = y1+20
+            
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
         self.color="red"
+    def y_size(self):
+        return abs(self.y2-self.y1)
+    def size_t(self):
+        return (abs(self.x2-self.x1),abs(self.y2-self.y1))
+    def size(self):
+        return abs(self.y2-self.y1) + abs(self.x2-self.x1)
+    def mid_y(self):
+        return (self.y1+self.y2)/2.
+    def mid_x(self):
+        return (self.x1+self.x2)/2.
     def pos(self):
-        return np.array([self.x,self.y])
+        return np.array([self.mid_x(),self.mid_y()])
     def __repr__(self):
-        return "Box[" + str(self.x) + ", " + str(self.y) + "]"
+        return "Box[" + str(self.mid_x()) + ", " + str(self.mid_y()) + "]"
 
 def classify(ys,means):
     out = []
-    print means[0].shape[0]
     for y in ys:
         out.append(min(range(means[0].shape[0]),key=lambda i: np.linalg.norm(means[0][i]-y)))
     return out
 
-def y_cluster(ys):
-    return kmeans(ys,3)
+def x_cluster(xs,num_clusters=3):
+    return kmeans(xs,num_clusters)
+def y_cluster(ys,num_clusters=3):
+    return kmeans(ys,num_clusters)
 
-def cluster_boxes(boxes):
-    ys = np.array([np.array([b.y]) for b in boxes])
-    means = y_cluster(ys)
+def accept_outliers(data, m=2):
+    return data[abs(data[:,1] - np.mean(data[:,1])) > m * np.std(data[:,1])]
+def reject_outliers(data, m=2):
+    return data[abs(data[:,1] - np.mean(data[:,1])) < m * np.std(data[:,1])]
+
+def cluster_boxes(boxes,num_clusters=3):
+    ys = np.array([np.array([b.mid_y()]) for b in boxes])
+
+    means = y_cluster(ys,num_clusters)
     classification = classify(ys,means)
-    clusters = [[] for i in range(means[0].shape[0])]
-
+    clusters = [Cluster() for i in range(means[0].shape[0])]
     for i,b in enumerate(boxes):
-        clusters[classification[i]].append(b)
+        clusters[classification[i]].boxes.append(b)
 
-    return clusters
+    print "Mean:",means[1]
+    return clusters,means[1]
+
+def cluster(boxes):
+    sizes = np.array([[b,b.y_size()] for b in boxes])
+    abnormal = accept_outliers(sizes)[:,0]
+    normal = reject_outliers(sizes)[:,0]
+    return cluster_boxes(normal)
 
 if __name__=="__main__":
+    dist = 200
 
     boxes = [
+                Box(5,5,20,400),
+                
                 Box(50,50),
                 Box(150,52),
                 Box(250,48),
                 Box(350,43),
-                Box(150,158),
-                Box(250,150),
-                Box(350,151),
-                Box(100,251),
-                Box(333,230),
-                Box(350,261),
+
+                Box(50,150),
+                Box(150,152),
+                Box(250,148),
+                Box(350,143),
+
+                Box(50,250),
+                Box(150,252),
+                Box(250,248),
+                Box(350,243),
+
+                Box(50,350),
+                Box(150,352),
+                Box(250,348),
+                Box(350,343),
+
+                Box(dist+300+ 50,50),
+                Box(dist+300+ 150,52),
+                Box(dist+300+ 250,48),
+                Box(dist+300+ 350,43),
+
+                Box(dist+300+ 50,150),
+                Box(dist+300+ 150,152),
+                Box(dist+300+ 250,148),
+                Box(dist+300+ 350,143),
+
+                Box(dist+300+ 50,250),
+                Box(dist+300+ 150,252),
+                Box(dist+300+ 250,248),
+                Box(dist+300+ 350,243),
+
+                Box(dist+300+ 50,350),
+                Box(dist+300+ 150,352),
+                Box(dist+300+ 250,348),
+                Box(dist+300+ 350,343),
+
+                Box(400,5,420,400),
             ]
+    colors = ['red','blue','green','yellow']
 
-    print  cluster_boxes(boxes)
-    """
+    sizes = np.array([[b,b.y_size()] for b in boxes])
+    abnormal = accept_outliers(sizes)[:,0]
+    normal = reject_outliers(sizes)[:,0]
+
+    first = 99999999999999
+    for i in range(100):
+        print first
+        clusters,error = cluster_boxes(normal,num_clusters=i+1)
+        print clusters,error
+        if first-error<5:
+            break
+        first = error
+    colors *= len(clusters)/len(colors)
     root = tk.Tk()
-    vis = Visualizer(root,800,600)
+    vis = Visualizer(root,1000,600)
 
-    for b in boxes:
-        vis.add_drawable(Point2D(b.pos(),fill=b.color))
+    for cluster,color in zip(clusters,colors):
+        for b in cluster.boxes:
+            box = Box2D((b.x1,b.y1),size=b.size_t())
+            box.fill = color
+            vis.add_drawable(box)
+        box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
+                    size=cluster.bounding_box().size_t())
+        box.fill = None
+        vis.add_drawable(box)
+
 
     vis.run()
     root.mainloop()
-    """
