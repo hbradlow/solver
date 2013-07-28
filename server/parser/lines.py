@@ -52,6 +52,8 @@ class Box:
         self.x2 = x2
         self.y2 = y2
         self.color="red"
+    def __hash__(self):
+        return hash((self.x1,self.x2,self.y1,self.y2))
     def overlaps_x(self,other):
         return not (self.x1>other.x2 or self.x2<other.x1)
     def overlaps_y(self,other):
@@ -107,10 +109,18 @@ def cluster_boxes(boxes,num_clusters=3):
 def matrix_cluster(boxes):
     sizes = np.array([[b,b.x_size()] for b in boxes])
     normal = reject_outliers(sizes)[:,0]
-    clusters = cluster(list(normal))
-    return clusters
+    x_clusters = cluster(list(normal))
+    y_clusters = cluster(list(normal),x=False)
+    numbers = []
+    for c in x_clusters:
+        new_clust = []
+        for y_c in y_clusters:
+            new_clust.append(Cluster(list(set(tuple(c.boxes)) & set(tuple(y_c.boxes)))))
+        numbers.append(new_clust)
+    print "NUMBERS:",numbers
+    return numbers
 
-def cluster(boxes):
+def cluster(boxes,x=True):
     clusters = []
     while boxes:
         cluster = Cluster()
@@ -120,10 +130,16 @@ def cluster(boxes):
         tmp = []
         for other in boxes:
             print cluster
-            if cluster.bounding_box().overlaps_x(other):
-                cluster.boxes.append(other)
+            if x:
+                if cluster.bounding_box().overlaps_x(other):
+                    cluster.boxes.append(other)
+                else:
+                    tmp.append(other)
             else:
-                tmp.append(other)
+                if cluster.bounding_box().overlaps_y(other):
+                    cluster.boxes.append(other)
+                else:
+                    tmp.append(other)
             print cluster.bounding_box()
         boxes = tmp
 
