@@ -16,7 +16,7 @@ class Solver:
             title = r.node.attrib['title']
             if title in ["Solution","Result","Derivative"]:
                 return r.node._children[0]._children[0].text
-        return "Unknown problem type."
+        return None
 
     def _simple(self,s):
         try:

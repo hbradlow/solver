@@ -9,9 +9,13 @@ class Cluster:
         if boxes:
             self.boxes = boxes
         self.error = 0
+    def mid_x(self):
+        return self.bounding_box().mid_x()
     def mid_y(self):
         return self.bounding_box().mid_y()
     def bounding_box(self):
+        if not self.boxes:
+            return Box(0,0,0,0)
         x1 = min([b.x1 for b in self.boxes])
         x2 = max([b.x2 for b in self.boxes])
         y1 = min([b.y1 for b in self.boxes])
@@ -50,12 +54,16 @@ class Box:
         self.x2 = x2
         self.y2 = y2
         self.color="red"
+    def __hash__(self):
+        return hash((self.x1,self.x2,self.y1,self.y2))
     def overlaps_x(self,other):
         return not (self.x1>other.x2 or self.x2<other.x1)
     def overlaps_y(self,other):
         return not (self.y1>other.y2 or self.y2<other.y1)
     def __eq__(self,other):
         return [self.x1,self.x2,self.y1,self.y2] == [other.x1,other.x2,other.y1,other.y2]
+    def x_size(self):
+        return abs(self.x2-self.x1)
     def y_size(self):
         return abs(self.y2-self.y1)
     def size_t(self):
@@ -86,7 +94,7 @@ def y_cluster(ys,num_clusters=3):
 def accept_outliers(data, m=2):
     return data[abs(data[:,1] - np.mean(data[:,1])) > m * np.std(data[:,1])]
 
-def reject_outliers(data, m=1):
+def reject_outliers(data, m=.5):
     return data[abs(data[:,1] - np.mean(data[:,1])) < m * np.std(data[:,1])]
 
 def cluster_boxes(boxes,num_clusters=3):
@@ -101,48 +109,83 @@ def cluster_boxes(boxes,num_clusters=3):
     return clusters,means[1]
 
 def matrix_cluster(boxes):
-    sizes = np.array([[b,b.y_size()] for b in boxes])
+    sizes = np.array([[b,b.x_size()] for b in boxes])
     normal = reject_outliers(sizes)[:,0]
-    return cluster(list(normal))
+    x_clusters = cluster(list(normal))
+    y_clusters = cluster(list(normal),x=False)
+    numbers = []
+    for c in x_clusters:
+        new_clust = []
+        for y_c in y_clusters:
+            new_clust.append(Cluster(list(set(tuple(c.boxes)) & set(tuple(y_c.boxes)))))
+        numbers.append(new_clust)
+        
+    root = tk.Tk()
+    vis = Visualizer(root,1000,600)
+    #return the clusters of boxes
+    for i in numbers:
+        for c in i:
+            for b in c.boxes:
+                box = Box2D((b.x1,b.y1),size=b.size_t())
+                vis.add_drawable(box)
+            box = Box2D((c.bounding_box().x1,c.bounding_box().y1),
+                        size=c.bounding_box().size_t())
+            box.fill = None
+            box.outline = "green"
+            vis.add_drawable(box)
+    #vis.run()
+    #root.mainloop()
 
-def cluster(boxes):
+    return numbers
+
+def cluster(boxes,x=True):
     clusters = []
     while boxes:
         cluster = Cluster()
         b = boxes.pop()
         cluster.boxes.append(b)
 
-        tmp = []
-        for other in boxes:
-            print cluster
-            if cluster.bounding_box().overlaps_y(other):
-                cluster.boxes.append(other)
-            else:
-                tmp.append(other)
-            #print cluster.bounding_box()
-        boxes = tmp
+        changed = True
+        while changed:
+            changed = False
+            for other in list(boxes):
+                if x:
+                    if cluster.bounding_box().overlaps_x(other):
+                        changed = True
+                        cluster.boxes.append(other)
+                        boxes.remove(other)
+                else:
+                    if cluster.bounding_box().overlaps_y(other):
+                        changed = True
+                        cluster.boxes.append(other)
+                        boxes.remove(other)
+        #boxes = tmp
 
         #if len(cluster.boxes)<5 and cluster.bounding_box().size()>10:
         clusters.append(cluster)
 
-    """
     root = tk.Tk()
     vis = Visualizer(root,1000,600)
 
+    if x:
+        clusters = sorted(clusters,key = lambda c:c.mid_x())
+    else:
+        clusters = sorted(clusters,key = lambda c:c.mid_y())
+
     #return the clusters of boxes
-    for cluster in clusters:
-        for b in cluster.boxes:
+    for c in clusters:
+        for b in c.boxes:
             box = Box2D((b.x1,b.y1),size=b.size_t())
             vis.add_drawable(box)
-        box = Box2D((cluster.bounding_box().x1,cluster.bounding_box().y1),
-                    size=cluster.bounding_box().size_t())
+        box = Box2D((c.bounding_box().x1,c.bounding_box().y1),
+                    size=c.bounding_box().size_t())
         box.fill = None
+        box.outline = "green"
         vis.add_drawable(box)
-    vis.run()
-    root.mainloop()
-    """
+    #vis.run()
+    #root.mainloop()
 
-    return sorted(clusters,key = lambda c:c.mid_y())
+    return clusters
 
 def cluster2(boxes):
     sizes = np.array([[b,b.y_size()] for b in boxes])
@@ -168,15 +211,14 @@ def cluster2(boxes):
     #scan over values of k and pick the best one
     cluster = None
     first = -1
-    """
     for i in range(100):
         clusters,error = cluster_boxes(normal,num_clusters=i+1)
         if first!=-1 and error/(first-error)<.15:
             break
         first = error
-    """
-    clusters,error = cluster_boxes(normal,num_clusters=6)
+    #clusters,error = cluster_boxes(normal,num_clusters=6)
 
+    """
     #return the clusters of boxes
     for cluster in clusters:
         for b in cluster.boxes:
@@ -188,6 +230,7 @@ def cluster2(boxes):
         vis.add_drawable(box)
     vis.run()
     root.mainloop()
+    """
 
     return clusters
 
@@ -252,4 +295,4 @@ if __name__=="__main__":
 
 
     #vis.run()
-    root.mainloop()
+    #root.mainloop()
